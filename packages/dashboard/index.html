@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArcForge — Swarm Board</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">◈</span> ARCFORGE <span class="dim">// swarm board</span></div>
+  <div class="topbar-right">
+    <span id="updated" class="dim"></span>
+    <span id="live-dot" class="dot dot-ok" title="live"></span>
+  </div>
+</header>
+
+<main class="grid">
+  <section class="panel" id="panel-claims">
+    <h2><span class="accent">//</span> Claims</h2>
+    <div id="claims" class="list"><p class="empty">waiting for run…</p></div>
+  </section>
+
+  <section class="panel" id="panel-conflicts">
+    <h2><span class="accent">//</span> Conflicts <span id="sev-badge" class="badge"></span></h2>
+    <div id="conflicts" class="list"><p class="empty">no overlap analysis yet</p></div>
+  </section>
+
+  <section class="panel span2" id="panel-proposals">
+    <h2><span class="accent">//</span> Proposals</h2>
+    <div id="proposals" class="list"><p class="empty">no proposals yet</p></div>
+  </section>
+
+  <section class="panel" id="panel-review">
+    <h2><span class="accent">//</span> Review thread</h2>
+    <div id="review" class="list"><p class="empty">no reviews yet</p></div>
+  </section>
+
+  <section class="panel" id="panel-merges">
+    <h2><span class="accent">//</span> Merge log <span class="dim small">why-chain</span></h2>
+    <div id="merges" class="list"><p class="empty">nothing merged yet</p></div>
+  </section>
+
+  <section class="panel span2" id="panel-negotiation">
+    <h2><span class="accent">//</span> Negotiation queue</h2>
+    <div id="negotiation" class="list"><p class="empty">queue empty — no conflicts</p></div>
+  </section>
+</main>
+
+<footer class="foot dim">
+  ArcForge demo board — reads <code>state.json</code> written by <code>node demo/run-demo.js</code>.
+  Refreshes every 3s. Serve this directory over HTTP for live reload
+  (<code>npx serve packages/dashboard</code>); opening via <code>file://</code> cannot fetch state.
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

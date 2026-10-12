@@ -1,0 +1,209 @@
+{
+  "scenario": "Three agents extend the notes CLI. Tasks A and B both touch the argparse setup in main() — engineered overlap for the conflict predictor.",
+  "claims": [
+    {
+      "taskId": "notes-json-flag",
+      "agentId": "agent-1",
+      "claimedAt": "2026-10-12T00:33:36.414Z"
+    },
+    {
+      "taskId": "notes-search",
+      "agentId": "agent-2",
+      "claimedAt": "2026-10-12T00:33:36.451Z"
+    },
+    {
+      "taskId": "notes-due-date",
+      "agentId": "agent-3",
+      "claimedAt": "2026-10-12T00:33:36.486Z"
+    }
+  ],
+  "proposals": [
+    {
+      "id": "agent-1:notes-json-flag",
+      "taskId": "notes-json-flag",
+      "agentId": "agent-1",
+      "branch": "forge/agent-1/notes-json-flag",
+      "diff": "diff --git a/notes.py b/notes.py\nindex 728808f..0b5dae1 100644\n--- a/notes.py\n+++ b/notes.py\n@@ -30,6 +30,9 @@ def cmd_add(args):\n \n def cmd_list(args):\n     notes = load()\n+    if getattr(args, \"json\", False):\n+        print(json.dumps(notes, indent=2))\n+        return\n     if not notes:\n         print(\"no notes yet\")\n         return\n@@ -56,6 +59,7 @@ def main():\n     p_add.set_defaults(func=cmd_add)\n \n     p_list = sub.add_parser(\"list\", help=\"list notes\")\n+    p_list.add_argument(\"--json\", action=\"store_true\", help=\"output notes as JSON\")\n     p_list.set_defaults(func=cmd_list)\n \n     p_del = sub.add_parser(\"delete\", help=\"delete a note\")",
+      "whyText": "# Why: notes-json-flag\nAdded a `--json` store_true flag to the `list` subparser and a branch in `cmd_list` that dumps the notes list as JSON when set. The default path (the \"no notes yet\" message and the `#id: text` lines) is untouched, so human-readable output is unchanged. With no notes, `--json` emits `[]`, which keeps the output valid JSON. I did not alter the storage format, the other commands, or the argument parsing structure beyond the one new flag.\n",
+      "commit": "d27abcecbc65bf27cf2d3de27a05981a2b7ab60f",
+      "review": {
+        "approve": true,
+        "comments": []
+      }
+    },
+    {
+      "id": "agent-2:notes-search",
+      "taskId": "notes-search",
+      "agentId": "agent-2",
+      "branch": "forge/agent-2/notes-search",
+      "diff": "diff --git a/notes.py b/notes.py\nindex 728808f..9f76004 100644\n--- a/notes.py\n+++ b/notes.py\n@@ -37,6 +37,17 @@ def cmd_list(args):\n         print(f\"#{n['id']}: {n['text']}\")\n \n \n+def cmd_search(args):\n+    notes = load()\n+    query = args.query.lower()\n+    matches = [n for n in notes if query in n[\"text\"].lower()]\n+    if not matches:\n+        print(\"no matches\")\n+        return\n+    for n in matches:\n+        print(f\"#{n['id']}: {n['text']}\")\n+\n+\n def cmd_delete(args):\n     notes = load()\n     kept = [n for n in notes if n[\"id\"] != args.id]\n@@ -58,6 +69,10 @@ def main():\n     p_list = sub.add_parser(\"list\", help=\"list notes\")\n     p_list.set_defaults(func=cmd_list)\n \n+    p_search = sub.add_parser(\"search\", help=\"search notes by substring\")\n+    p_search.add_argument(\"query\", help=\"substring to search for (case-insensitive)\")\n+    p_search.set_defaults(func=cmd_search)\n+\n     p_del = sub.add_parser(\"delete\", help=\"delete a note\")\n     p_del.add_argument(\"id\", type=int, help=\"note id\")\n     p_del.set_defaults(func=cmd_delete)",
+      "whyText": "# Why: notes-search\nAdded a `search` subcommand that takes a query and prints notes whose text contains it, compared case-insensitively by lowercasing both sides. It reuses the existing `load()` helper and prints \"no matches\" when nothing matches, as the acceptance criteria require. Matching output uses the same `#id: text` format as `list`. Nothing else was changed: `add`, `list`, `delete`, storage, and the argument parser's other subcommands are untouched.\n",
+      "commit": "6c5ee18f211244a2f3af89f9c14b5ef7b905451f",
+      "review": {
+        "approve": true,
+        "comments": []
+      }
+    },
+    {
+      "id": "agent-3:notes-due-date",
+      "taskId": "notes-due-date",
+      "agentId": "agent-3",
+      "branch": "forge/agent-3/notes-due-date",
+      "diff": "diff --git a/notes.py b/notes.py\nindex 728808f..31cfe73 100644\n--- a/notes.py\n+++ b/notes.py\n@@ -23,6 +23,8 @@ def save(notes):\n def cmd_add(args):\n     notes = load()\n     note = {\"id\": len(notes) + 1, \"text\": args.text}\n+    if args.due is not None:\n+        note[\"due\"] = args.due\n     notes.append(note)\n     save(notes)\n     print(f\"added note #{note['id']}\")\n@@ -53,6 +55,8 @@ def main():\n \n     p_add = sub.add_parser(\"add\", help=\"add a note\")\n     p_add.add_argument(\"text\", help=\"note text\")\n+    p_add.add_argument(\"--due\", metavar=\"DATE\", default=None,\n+                       help=\"optional due date (e.g. 2026-12-31)\")\n     p_add.set_defaults(func=cmd_add)\n \n     p_list = sub.add_parser(\"list\", help=\"list notes\")",
+      "whyText": "# Why: notes-due-date\nAdded an optional `--due DATE` argument to the `add` subparser, defaulting to None. In `cmd_add`, the `due` key is written onto the note object only when the flag is provided, so notes added without `--due` keep their original shape. The date is stored as a raw string without validation, since the spec only asks for storage and format validation was not requested. `list` and `delete` were deliberately left unchanged, as the spec scopes the work to `add`.\n",
+      "commit": "c31c64d4353d20d8db3248a9115d795d68e034fc",
+      "review": {
+        "approve": true,
+        "comments": []
+      }
+    }
+  ],
+  "conflicts": [
+    {
+      "between": [
+        "agent-1:notes-json-flag",
+        "agent-2:notes-search"
+      ],
+      "files": [
+        "notes.py"
+      ],
+      "hunks": [
+        {
+          "file": "notes.py",
+          "aHunk": {
+            "oldStart": 56,
+            "oldLines": 6,
+            "newStart": 59,
+            "newLines": 7,
+            "symbols": [
+              "main"
+            ]
+          },
+          "bHunk": {
+            "oldStart": 58,
+            "oldLines": 6,
+            "newStart": 69,
+            "newLines": 10,
+            "symbols": [
+              "main"
+            ]
+          }
+        }
+      ],
+      "grazes": [],
+      "symbols": [
+        "main"
+      ],
+      "severity": "high"
+    },
+    {
+      "between": [
+        "agent-1:notes-json-flag",
+        "agent-3:notes-due-date"
+      ],
+      "files": [
+        "notes.py"
+      ],
+      "hunks": [
+        {
+          "file": "notes.py",
+          "aHunk": {
+            "oldStart": 56,
+            "oldLines": 6,
+            "newStart": 59,
+            "newLines": 7,
+            "symbols": [
+              "main"
+            ]
+          },
+          "bHunk": {
+            "oldStart": 53,
+            "oldLines": 6,
+            "newStart": 55,
+            "newLines": 8,
+            "symbols": [
+              "main"
+            ]
+          }
+        }
+      ],
+      "grazes": [],
+      "symbols": [
+        "main"
+      ],
+      "severity": "high"
+    },
+    {
+      "between": [
+        "agent-2:notes-search",
+        "agent-3:notes-due-date"
+      ],
+      "files": [
+        "notes.py"
+      ],
+      "hunks": [],
+      "grazes": [
+        {
+          "file": "notes.py",
+          "aHunk": {
+            "oldStart": 58,
+            "oldLines": 6,
+            "newStart": 69,
+            "newLines": 10,
+            "symbols": [
+              "main"
+            ]
+          },
+          "bHunk": {
+            "oldStart": 53,
+            "oldLines": 6,
+            "newStart": 55,
+            "newLines": 8,
+            "symbols": [
+              "main"
+            ]
+          }
+        }
+      ],
+      "symbols": [
+        "main"
+      ],
+      "severity": "medium"
+    }
+  ],
+  "overlapSeverity": "high",
+  "merges": [
+    {
+      "proposalId": "agent-1:notes-json-flag",
+      "commit": "f9e39a1278607e0a474bf24c0cf634389aa173cb"
+    }
+  ],
+  "needsNegotiation": [
+    {
+      "proposalId": "agent-2:notes-search",
+      "reason": "predicted high-severity overlap with an already-merged proposal"
+    },
+    {
+      "proposalId": "agent-3:notes-due-date",
+      "reason": "predicted high-severity overlap with an already-merged proposal"
+    }
+  ],
+  "mergeLog": [
+    {
+      "hash": "f9e39a1278607e0a474bf24c0cf634389aa173cb",
+      "subject": "forge: merge proposal agent-1:notes-json-flag",
+      "chain": {
+        "taskId": "notes-json-flag",
+        "agentIds": [
+          "agent-1"
+        ],
+        "proposalIds": [
+          "agent-1:notes-json-flag"
+        ],
+        "rationale": "Added a `--json` store_true flag to the `list` subparser and a branch in `cmd_list` that dumps the notes list as JSON when set. The default path (the \"no notes yet\" message and the `#id: text` lines) is untouched, so human-readable output is unchanged. With no notes, `--json` emits `[]`, which keeps the output valid JSON. I did not alter the storage format, the other commands, or the argument parsing structure beyond the one new flag.",
+        "mergedAt": "2026-10-12T00:33:52.163Z"
+      }
+    }
+  ],
+  "updatedAt": "2026-10-12T00:33:52.183Z"
+}

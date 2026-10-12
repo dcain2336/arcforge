@@ -1,0 +1,159 @@
+/* ArcForge swarm board — dark, ARC-style. */
+
+:root {
+  --bg: #0a0e14;
+  --panel: #11161f;
+  --panel-border: #1e2634;
+  --text: #d7dee9;
+  --dim: #6b7688;
+  --accent: #f85149;
+  --green: #3fb950;
+  --amber: #d29922;
+  --blue: #58a6ff;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Inter, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 1.2rem;
+  border-bottom: 1px solid var(--panel-border);
+  background: #0d1119;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand { font-weight: 700; letter-spacing: 0.08em; }
+.brand-mark { color: var(--accent); }
+.dim { color: var(--dim); }
+.small { font-size: 0.8em; font-weight: 400; }
+
+.dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+.dot-ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot-bad { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  min-height: 180px;
+}
+.panel.span2 { grid-column: span 2; }
+.panel h2 {
+  margin: 0 0 0.7rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.accent { color: var(--accent); }
+
+.list { display: flex; flex-direction: column; gap: 0.6rem; }
+.empty { color: var(--dim); font-style: italic; margin: 0.2rem 0; }
+
+.card {
+  background: #0d1219;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+.card .row { display: flex; justify-content: space-between; gap: 0.5rem; align-items: baseline; }
+.card b { font-weight: 600; }
+.mono { font-family: var(--mono); font-size: 0.85em; }
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1em 0.55em;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.badge.high   { background: rgba(248,81,73,.15); color: var(--accent); border: 1px solid var(--accent); }
+.badge.medium { background: rgba(210,153,34,.12); color: var(--amber); border: 1px solid var(--amber); }
+.badge.low    { background: rgba(88,166,255,.12); color: var(--blue); border: 1px solid var(--blue); }
+.badge.ok     { background: rgba(63,185,80,.12); color: var(--green); border: 1px solid var(--green); }
+.badge.none   { background: transparent; color: var(--dim); border: 1px solid var(--dim); }
+
+pre.diff {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  background: #080b10;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 0.6rem;
+  overflow-x: auto;
+  max-height: 260px;
+  overflow-y: auto;
+  white-space: pre;
+  margin: 0.5rem 0 0;
+}
+pre.diff .add { color: var(--green); }
+pre.diff .del { color: var(--accent); }
+pre.diff .hunk { color: var(--blue); }
+
+details.why { margin-top: 0.4rem; }
+details.why summary { cursor: pointer; color: var(--dim); font-size: 0.85em; }
+details.why summary:hover { color: var(--text); }
+.why-body {
+  font-size: 0.85em;
+  color: var(--dim);
+  border-left: 2px solid var(--panel-border);
+  padding-left: 0.7rem;
+  margin-top: 0.4rem;
+  white-space: pre-wrap;
+}
+
+.chain {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--dim);
+  background: #080b10;
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  margin-top: 0.4rem;
+  overflow-x: auto;
+}
+
+.foot {
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 0.8rem;
+  border-top: 1px solid var(--panel-border);
+  margin-top: 1rem;
+}
+.foot code { font-family: var(--mono); }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+  .panel.span2 { grid-column: span 1; }
+}
